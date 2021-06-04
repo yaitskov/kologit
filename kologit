@@ -1,0 +1,19 @@
+#!/bin/env bash
+
+
+cat<<EOF
+kologit is a set of short-named scripts for git command:
+
+gbl - list branches
+gbr - list active branch and branches recently being active
+gbc - checkout branch and update gbr list
+gbp - checkout previous branch (like "cd -")
+gbn - print active branch name
+
+e.g:
+
+    \$ gbr
+    master
+    No branch switch history
+
+EOF
