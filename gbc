@@ -13,21 +13,25 @@ esac
 . "$(dirname $0)"/find-root-dir.sh
 
 
-B="$(gbn)"
+CURRENT_BRANCH="$(gbn)"
+
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
+   TARGET_BRANCH=$(sed "$1"'!d' "$BRANCH_LRU")
+else
+   TARGET_BRANCH="$1"
+fi
+
+shift
 
 if [ -f "$BRANCH_LRU" ] ; then
-    sed -i -e "/^$B"'$/d' "$BRANCH_LRU"
-    sed -i -e "1i $B" "$BRANCH_LRU"
+    sed -i -e "/^$CURRENT_BRANCH"'$/d' "$BRANCH_LRU"
+    sed -i -e "/^$TARGET_BRANCH"'$/d' "$BRANCH_LRU"
+    sed -i -e "1i $CURRENT_BRANCH" "$BRANCH_LRU"
     sed -i -e 11d "$BRANCH_LRU"
 fi
 
-[ -f "$BRANCH_LRU" ] || { echo "$B" >> "$BRANCH_LRU"; }
-[ $(wc -l < "$BRANCH_LRU") -le 2 ] && { echo "$B" >> "$BRANCH_LRU"; }
+[ -f "$BRANCH_LRU" ] || { echo "$CURRENT_BRANCH" >> "$BRANCH_LRU"; }
+[ $(wc -l < "$BRANCH_LRU") -le 2 ] && { echo "$CURRENT_BRANCH" >> "$BRANCH_LRU"; }
 
 
-if [[ "$1" =~ ^[0-9]+$ ]] ; then
-   B=$(sed "$1"'!d' "$BRANCH_LRU")
-   [ -n "$B" ] && git checkout "$B"
-else
-  exec git checkout "$@"
-fi
+[ -n "$TARGET_BRANCH" ] && git checkout "$TARGET_BRANCH" "$@"
