@@ -20,4 +20,12 @@ You can update global git config to ignore kologit system folder:
 
 ~/.gitignore:
 .kologit
+
+-----------------------------------------------------------------------------
+Use kologit for help:
+\$ kologit
 EOF
+
+export PATH=$HOME/.bin/scripts/kologit:$PATH
+
+kologit
