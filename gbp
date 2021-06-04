@@ -1,0 +1,27 @@
+#!/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gbp [ -h ]
+
+gbp script switches to previous git branch.
+EOF
+       exit 1 ;;
+    "") ;;
+    *) echo "Bad option '$1'";
+       exit 1 ;;
+esac
+
+. "$(dirname $0)"/find-root-dir.sh
+
+if [ -f "$BRANCH_LRU" ] ; then
+    B=$(sed '1!d' "$BRANCH_LRU")
+    sed -i -e "1d" "$BRANCH_LRU"
+    sed -i -e "1i $(gbn)" "$BRANCH_LRU"
+    sed -i -e 11d "$BRANCH_LRU"
+
+    [ -f "$BRANCH_LRU" ] || { echo "$(gbn)" >> "$BRANCH_LRU"; }
+    [ $(wc -l < "$BRANCH_LRU") -le 2 ] && { echo "$(gbn)" >> "$BRANCH_LRU"; }
+
+    [ -n "$B" ] && git checkout "$B"
+fi

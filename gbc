@@ -1,0 +1,33 @@
+#!/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gbc [ -h ] (recent branch number | <git checkout options ...>)
+
+gbc script checks out git branch.
+See recent branch number in gbr
+EOF
+       exit 1 ;;
+esac
+
+. "$(dirname $0)"/find-root-dir.sh
+
+
+B="$(gbn)"
+
+if [ -f "$BRANCH_LRU" ] ; then
+    sed -i -e "/^$B"'$/d' "$BRANCH_LRU"
+    sed -i -e "1i $B" "$BRANCH_LRU"
+    sed -i -e 11d "$BRANCH_LRU"
+fi
+
+[ -f "$BRANCH_LRU" ] || { echo "$B" >> "$BRANCH_LRU"; }
+[ $(wc -l < "$BRANCH_LRU") -le 2 ] && { echo "$B" >> "$BRANCH_LRU"; }
+
+
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
+   B=$(sed "$1"'!d' "$BRANCH_LRU")
+   [ -n "$B" ] && git checkout "$B"
+else
+  exec git checkout "$@"
+fi

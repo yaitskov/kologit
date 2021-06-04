@@ -1,0 +1,28 @@
+#!/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gbr [ -h ]
+
+gbr script lists recent git branches.
+EOF
+       exit 1 ;;
+    "") ;;
+    *) echo "Bad option '$1'";
+       exit 1 ;;
+esac
+
+. "$(dirname $0)"/find-root-dir.sh
+
+
+gbn
+
+if [ -f "$BRANCH_LRU" ] ; then
+  I=1
+  cat "$BRANCH_LRU" | while read B ; do
+    echo "$I) $B"
+    I=$[$I+1]
+  done
+else
+  echo "No branch switch history"
+fi
