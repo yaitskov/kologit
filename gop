@@ -7,9 +7,9 @@ Usage: gop [ -h ] [ ( <recent branch number> | <branch = current branch> )
 gop script pushes changes to origin branch.
 See recent branch number in gbr
 
-gop 1
-gop 1:xxx
-gop # git push curent-branch:curent-branch
+gop 1     # git push origin previous-branch:previous-branch
+gop 1:xxx # git push origin previous-branch:xxx
+gop       # git push origin curent-branch:curent-branch
 EOF
        exit 1 ;;
 esac
