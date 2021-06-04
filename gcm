@@ -1,0 +1,41 @@
+#!/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gcm commit message words
+
+gcm script treats all arguments as commit message words
+    and commits the commit with them.
+
+gcm hello world
+EOF
+       exit 1 ;;
+esac
+
+
+CURRENT_TICKET="$(gbn | grep -o -E '^[A-Z]+[-][0-9]+')"
+
+
+if [ -n "$CURRENT_TICKET" ] ; then
+    MSG="$CURRENT_TICKET "
+    if [ $# -eq 0 ] ; then
+        while read line; do
+            if [ "." == "$line" ] ; then
+                break
+            else
+                if [ -z "$MSG" ] ; then
+                    MSG="$MSG$line"
+                else
+                    MSG="$MSG\n$line"
+                fi
+            fi
+        done
+    else
+        MSG="$CURRENT_TICKET "
+        while [ $# -ne 0 ] ; do
+            MSG="$MSG $1"
+            shift
+        done
+    fi
+    git commit -m "$MSG"
+fi
