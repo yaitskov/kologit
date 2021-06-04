@@ -1,0 +1,21 @@
+#!/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gbm [ <branch name or number = master> ]
+
+gbm script merge specified branch into current one.
+EOF
+       exit 1 ;;
+esac
+
+. "$(dirname $0)"/find-root-dir.sh
+
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
+   B=$(sed "$1"'!d' "$BRANCH_LRU")
+   [ -n "$B" ] && git merge "$B"
+elif [[ "$1" == "" ]] ; then
+  exec git merge master
+else
+  exec git merge "$@"
+fi
