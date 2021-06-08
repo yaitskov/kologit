@@ -1,0 +1,33 @@
+#!/bin/env bash
+
+V_NOT=
+PATTERN=.
+DRY_MODE=
+
+while [ $# -ne 0 ] ; do
+    case "$1" in
+        -d|--dry) DRY_MODE=1;;
+        -v|--not) V_NOT="-v" ;;
+        -h|--help) cat<<EOF
+Usage: gufr [ -h ] [-v] [-d] [ file-regex-patten ]
+
+gufr removes untracted files:
+  -d --dry print files to be deleted
+  -v --not negate regex
+  -h --help print help
+EOF
+           exit 1 ;;
+        *) [ $# -ne 1 ] && { echo "Only 1 regex pattern is supported!" ; exit 1 ; }
+           PATTERN="$1" ;;
+    esac
+    shift
+done
+
+git status | sed -n -E '/^$/,/^$/p' | sed -E '/^$/d' | grep $V_NOT "$PATTERN" \
+    | while read FILE_PATH ; do
+    if [ -z "$DRY_MODE" ] ; then
+        rm "$FILE_PATH"
+    else
+        echo "Remove [$FILE_PATH]"
+    fi
+done
