@@ -1,6 +1,4 @@
-
-#!/bin/env bash
-
+#!/usr/bin/env bash
 
 O=--graph
 if [ "$1" == "ng" ] ; then
