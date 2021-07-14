@@ -16,26 +16,32 @@ esac
 CURRENT_TICKET="$(gbn | grep -o -E '^[A-Z]+[-][0-9]+')"
 
 
-if [ -n "$CURRENT_TICKET" ] ; then
-    MSG="$CURRENT_TICKET "
-    if [ $# -eq 0 ] ; then
-        while read line; do
-            if [ "." == "$line" ] ; then
-                break
-            else
-                if [ -z "$MSG" ] ; then
-                    MSG="$MSG$line"
+if [ $# -eq 0 ] ; then
+    while read line; do
+        if [ "." == "$line" ] ; then
+            break
+        else
+            if [ -z "$MSG" ] ; then
+                if [ -n "$CURRENT_TICKET" ] ; then
+                    MSG="$CURRENT_TICKET $line"
                 else
-                    MSG="$MSG\n$line"
+                    MSG="$line"
                 fi
+            else
+                MSG="$MSG\n$line"
             fi
-        done
-    else
-        MSG="$CURRENT_TICKET "
-        while [ $# -ne 0 ] ; do
+        fi
+    done
+else
+    MSG="$CURRENT_TICKET"
+    while [ $# -ne 0 ] ; do
+        if [ -z "$MSG" ] ; then
+            MSG="$1"
+        else
             MSG="$MSG $1"
-            shift
-        done
-    fi
-    git commit -m "$MSG"
+        fi
+        shift
+    done
 fi
+
+git commit -m "$MSG"
