@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+
+msg="$1"
+shift
+git commit -m "$(git branch | grep \[\*\] | awk '{ print($2) }' | sed -E 's/(SDEV-[0-9]+|i[0-9]+)-.*/[\1]/') $msg" $@
+

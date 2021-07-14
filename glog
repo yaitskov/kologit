@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+
+O=--graph
+if [ "$1" == "ng" ] ; then
+O=""
+shift
+fi
+git log $O --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset %Cblue(%an)%Creset' \
+    --abbrev-commit --date=relative $@
+echo
