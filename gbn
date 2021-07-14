@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # show current git branch
 git branch | grep '^[*] ' | sed 's/^[*] *//'
