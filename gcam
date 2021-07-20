@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+GIT_EDITOR=touch git commit --amend "$@"
