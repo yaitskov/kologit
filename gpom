@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    -h|--help) cat<<EOF
+Usage: gpo [ -h ] [ alternative origin ]
+
+gbo (Git Pull Origin) script pulls branch with same name as current
+one from a remote repository, by default it is origin.
+
+EOF
+       exit 1 ;;
+esac
+
+
+REMOTE_BRANCH="${REMOTE_BRANCH:-master}"
+
+if [ -n "$1" ] ; then
+    REMOTE_REPO="$1"
+else
+    REMOTE_REPO="origin"
+fi
+
+git pull "$REMOTE_REPO/$REMOTE_BRANCH"
