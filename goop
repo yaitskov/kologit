@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+err () {
+    echo "$@" 1>&2
+    exit 1
+}
+
+USE_FORCE=
+DRY_RUN=
+
+while [ $# -ne 0 ]; do
+    case "$1" in
+        -d|--dry) DRY_RUN=y ;;
+        -f|--force) USE_FORCE=-f ;;
+        -h|--help)
+            cat<<EOF
+goop [ -f ] [-d] [ -h ] pushes current branch to a git remote other than origin
+  repository should have exactly 2 remotes.
+  -f  push with force
+  -d  dry run
+EOF
+            exit 1 ;;
+        *) err "Unsuppordet argument [$1] - see help";;
+    esac
+    shift
+done
+
+OTHER_REMOTE="$(git remote | grep -v origin)"
+
+case $(git remote | grep -v origin | wc -l) in
+    0) err no remote besides the origin ;;
+    1)  CUR_BRANCH="$(gb | grep '[*]' | sed 's/[*] //')"
+        if [ -n "$DRY_RUN" ] ; then
+            echo git push $USE_FORCE $OTHER_REMOTE "$CUR_BRANCH":"$CUR_BRANCH"
+        else
+            exec git push $USE_FORCE $OTHER_REMOTE "$CUR_BRANCH":"$CUR_BRANCH"
+        fi ;;
+    *) err there is more than 1 remote besides the origin ;;
+esac
