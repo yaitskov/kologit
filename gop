@@ -1,32 +1,50 @@
 #!/usr/bin/env bash
 
-case "$1" in
-    -h|--help) cat<<EOF
-Usage: gop [ -h ] [ ( <recent branch number> | <branch = current branch> )
+PUSH_WITH_FORCE=
+CURRENT_BRANCH="$(gbn)"
+SOURCE_BRANCH=$CURRENT_BRANCH
+TARGET_BRANCH=$CURRENT_BRANCH
+ORIGIN=origin
+
+while [ $# -ne 0 ] ; do
+    case "$1" in
+        -f|--force) PUSH_WITH_FORCE=-f;;
+        -o) ORIGIN=$(gr | grep -v origin | head -n 1) ;;
+        -h|--help) cat<<EOF 1>&2
+Usage: gop [ -h ] [ -f ] [ -o ] [ ( <recent branch number> | <branch = current branch> )
 
 gop script pushes changes to origin branch.
 See recent branch number in gbr
 
-gop 1     # git push origin previous-branch:previous-branch
-gop 1:xxx # git push origin previous-branch:xxx
-gop       # git push origin curent-branch:curent-branch
+Options:
+  -h      print help
+  -f      push with force
+  -o      other origin (origin with name not equal 'origin')
+
+Examples:
+  gop 1     # git push origin previous-branch:previous-branch
+  gop 1:xxx # git push origin previous-branch:xxx
+  gop       # git push origin curent-branch:curent-branch
 EOF
-       exit 1 ;;
-esac
+                   exit 1 ;;
+        *)
+            if [[ "$1" =~ ^[0-9]+$ ]] ; then
+                B=$(sed "$1"'!d' "$BRANCH_LRU")
+                TARGET_BRANCH=$B
+                SOURCE_BRANCH=$B
+            elif [[ "$1" =~ ^([0-9]+):([a-zA-Z_0-9-]+)$ ]] ; then
+                B=$(sed "${BASH_MATCHES[1]}"'!d' "$BRANCH_LRU")
+                TARGET_BRANCH=${BASH_MATCHES[1]}
+                SOURCE_BRANCH=$B
+            else
+                echo "Bad argument: [$1]. See help" 1>&2
+                exit 1
+            fi;;
+    esac
+    shift
+done
 
 . "$(dirname $0)"/find-root-dir.sh
 
 
-CURRENT_BRANCH="$(gbn)"
-
-if [[ "$1" =~ ^[0-9]+$ ]] ; then
-   B=$(sed "$1"'!d' "$BRANCH_LRU")
-   [ -n "$B" ] && git push origin "$B:$B"
-elif [[ "$1" == "" ]] ; then
-    git push origin "$CURRENT_BRANCH:$CURRENT_BRANCH"
-elif [[ "$1" =~ ^([0-9]+):([a-zA-Z_0-9-]+)$ ]] ; then
-   B=$(sed "${BASH_MATCHES[1]}"'!d' "$BRANCH_LRU")
-   [ -n "$B" ] && git push origin "$B:${BASH_MATCHES[1]}"
-else
-    git push origin "$@"
-fi
+git push $PUSH_WITH_FORCE $ORIGIN "$SOURCE_BRANCH:$TARGET_BRANCH"
